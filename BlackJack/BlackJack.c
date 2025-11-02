@@ -104,99 +104,128 @@ bool checkBlackJack(Player p, Dealer d){
 
 int main(){
     srand(time(NULL));
-
-    Player p;
-    Dealer d;
-    p.totalPoints = 0; p.aceCount = 0;
-    d.totalPoints = 0; d.aceCount = 0;
-
-    int deck[52];
-    int topCard = 0;
-
-    initDeck(deck);
-    shuffleDeck(deck);
-
-    printf("-----------------------------------\n");
-    printf("         REGOLE DEL BLACKJACK        \n");
-    printf("-----------------------------------\n");
-    printf("Obiettivo: piu' vicino a 21 senza superarlo.\n");
-    printf("Hit = pescare, Stand = fermarsi.\n");
-    printf("-----------------------------------\n\n");
-
-    printf("Inserisci il tuo nome: ");
-    scanf("%s", p.name);
-
-    printf("\nInizio gioco!\n\n");
-
-    // Carte iniziali
-    int card1 = drawCard(deck, &topCard);
-    int card2 = drawCard(deck, &topCard);
-    addCardToPlayer(&p, card1);
-    addCardToPlayer(&p, card2);
-
-    int dealerCard1 = drawCard(deck, &topCard);
-    int dealerCard2 = drawCard(deck, &topCard);
-    addCardToDealer(&d, dealerCard1);
-    addCardToDealer(&d, dealerCard2);
-
-    // Controllo blackjack iniziale
-    if(checkBlackJack(p, d)){
-        return 0;
-    }
-
-    printf("\nIl dealer mostra solo la prima carta: ");
-    printCard(dealerCard1);
-    printf("\n\n");
-
-    // Turno del giocatore
-    char choice;
-    while(p.totalPoints < 21){
-        printf("Vuoi pescare un'altra carta? (H = Hit / S = Stand): ");
-        scanf(" %c", &choice);
-
-        if(choice == 'H' || choice == 'h'){
-            int newCard = drawCard(deck, &topCard);
-            addCardToPlayer(&p, newCard);
-            if(p.totalPoints > 21){
-                printf("Hai superato 21! Bust!\n");
-                break;
-            }
-        } else if(choice == 'S' || choice == 's'){
-            printf("Ti fermi a %d punti.\n", p.totalPoints);
-            break;
-        } else{
-            printf("Inserisci H o S!\n");
+    while (1){
+    
+        Player p;
+        Dealer d;
+        p.totalPoints = 0; p.aceCount = 0;
+        d.totalPoints = 0; d.aceCount = 0;
+    
+        int deck[52];
+        int topCard = 0;
+    
+        initDeck(deck);
+        shuffleDeck(deck);
+    
+        printf("-----------------------------------\n");
+        printf("         REGOLE DEL BLACKJACK        \n");
+        printf("-----------------------------------\n");
+        printf("Obiettivo: piu' vicino a 21 senza superarlo.\n");
+        printf("Hit = pescare, Stand = fermarsi.\n");
+        printf("-----------------------------------\n\n");
+    
+        printf("Inserisci il tuo nome: ");
+        scanf("%s", p.name);
+    
+        printf("\nInizio gioco!\n\n");
+    
+        // Carte iniziali
+        int card1 = drawCard(deck, &topCard);
+        int card2 = drawCard(deck, &topCard);
+        addCardToPlayer(&p, card1);
+        addCardToPlayer(&p, card2);
+    
+        int dealerCard1 = drawCard(deck, &topCard);
+        int dealerCard2 = drawCard(deck, &topCard);
+        addCardToDealer(&d, dealerCard1);
+        addCardToDealer(&d, dealerCard2);
+    
+        if(checkBlackJack(p, d)){
+            return 0; // termina subito il gioco se c'è blackjack
         }
+    
+    
+        printf("\nIl dealer mostra solo la prima carta: ");
+        printCard(dealerCard1);
+        printf("\n\n");
+    
+        // Turno del giocatore
+        char choice;
+        while((p.totalPoints < 21)){
+            printf("Vuoi pescare un'altra carta? (H = Hit / S = Stand): ");
+            scanf(" %c", &choice);
+    
+            if (isblank(choice)) {
+                continue;
+            }
+    
+            if (!isalnum(choice)){
+                printf("Inserisci un carattere valido.\n");
+                continue;
+            }
+    
+            char c = tolower(choice);
+    
+            if(c == 'h'){
+                int newCard = drawCard(deck, &topCard);
+                addCardToPlayer(&p, newCard);
+                if(p.totalPoints > 21){
+                    printf("Hai superato 21! Bust!\n");
+                    break;
+                }
+            } else if(c == 's'){
+                printf("Ti fermi a %d punti.\n", p.totalPoints);
+                break;
+            } else{
+                printf("Inserisci H o S!\n");
+            }
+    
+        }
+    
+        // Turno dealer
+        printf("\nTurno del dealer...\n");
+        printf("Dealer rivela la seconda carta: ");
+        printCard(dealerCard2);
+        printf("\n");
+    
+        while(d.totalPoints < 17){
+            int newCard = drawCard(deck, &topCard);
+            addCardToDealer(&d, newCard);
+            printf("Dealer pesca: ");
+            printCard(newCard);
+            printf(" (Totale: %d)\n", d.totalPoints);
+        }
+    
+        // Risultati finali
+        printf("\n--- Risultato finale ---\n");
+        printf("%s: %d punti\n", p.name, p.totalPoints);
+        printf("Dealer: %d punti\n", d.totalPoints);
+    
+        if (p.totalPoints > 21) {
+            printf("Hai perso!\n");
+        } else if (d.totalPoints > 21) {
+            printf("Hai vinto!\n");
+        } else if (p.totalPoints > d.totalPoints) {
+            printf("Hai vinto!\n");
+        } else if (p.totalPoints < d.totalPoints) {
+            printf("Hai perso!\n");
+        } else {
+            printf("Parità! Vince il dealer.\n");
+        }
+    
+    
+        printf("\nGrazie per aver giocato!\n");
+        printf("----------------------\n\n");
+        printf("Vuoi giocare ancora? (Y/N): ");
+    
+        char playAgain;
+    
+        scanf(" %c", &playAgain);
+        if(tolower(playAgain) != 'y') break;
+    
     }
-
-    // Turno dealer
-    printf("\nTurno del dealer...\n");
-    printf("Dealer rivela la seconda carta: ");
-    printCard(dealerCard2);
-    printf("\n");
-
-    while(d.totalPoints < 17){
-        int newCard = drawCard(deck, &topCard);
-        addCardToDealer(&d, newCard);
-        printf("Dealer pesca: ");
-        printCard(newCard);
-        printf(" (Totale: %d)\n", d.totalPoints);
-    }
-
-    // Risultati finali
-    printf("\n--- Risultato finale ---\n");
-    printf("%s: %d punti\n", p.name, p.totalPoints);
-    printf("Dealer: %d punti\n", d.totalPoints);
-
-    if(p.totalPoints > 21) printf("Hai perso!\n");
-    else if(d.totalPoints > 21) printf("Hai vinto!\n");
-    else if(p.totalPoints > d.totalPoints) printf("Hai vinto!\n");
-    else if(p.totalPoints < d.totalPoints) printf("Hai perso!\n");
-    else printf("Parità! Vince il dealer.\n");
-
-    printf("\nGrazie per aver giocato!\n");
     printf("Premi INVIO per uscire...");
     getchar(); getchar();
-
+    
     return 0;
 }
