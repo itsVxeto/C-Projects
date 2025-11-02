@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 typedef struct {
     char name[50];
